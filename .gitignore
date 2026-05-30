@@ -23,3 +23,7 @@ yarn-error.log*
 .vscode/
 .idea/
 *.swp
+
+# OpenCode local config
+.opencode/
+skills-lock.json
