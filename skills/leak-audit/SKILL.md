@@ -77,21 +77,15 @@ Audit every surface for all four. Details and examples in
 
 - Changing the tool/observation name or schema while sanitizing.
 - Blanking the whole document instead of the leaking span.
-- Auditing only the prompt; forgetting retrieved context, tool outputs, or
-  upstream-stage outputs.
-- Checking only plain text; missing nested/structured formats.
+- Auditing only the prompt, or only plain text — missing retrieved context,
+  tool/upstream outputs, and nested/structured formats.
 - Exact-string-only matching; missing case/whitespace/punctuation variants and
   correlated values.
 - Skipping the verification re-run (never confirming the score actually drops).
-- Trusting a blind-baseline score without confirming the pipeline reached the
-  channel — the tool was actually called and the datastore returned real data.
-  A dead datastore or an uncalled tool scores near-floor in *both* modes and
-  looks like "no leak". See
-  [references/validating-the-harness.md](references/validating-the-harness.md).
-- For atomic/single-token answers (labels, sizes like `S`/`M`/`L`), flagging a
-  bare token in free text as a direct leak without phrase context — a false
-  positive. Scan structured fields for the direct channel; require phrase
-  context in prose. See
+- Two failure modes that both masquerade as "no leak" — trusting a
+  blind-baseline score without confirming the channel was exercised, and
+  flagging a bare single-token answer in prose as a direct leak. Both are
+  covered in
   [references/validating-the-harness.md](references/validating-the-harness.md).
 
 ## scripts/leak_scan.ts
@@ -103,14 +97,12 @@ framework):
   → `{ leaked, review[], findings[] }`. Scans a flat context string and a
   structured fields object (recursively, with JSON paths) for direct and
   correlated leakage. `leaked` fires only on blocking (`high`/`medium`)
-  findings; a bare single-token match in free text (an atomic answer like
-  `S`/`M`/`L`) is downgraded to `low` and surfaced in `review` instead of
-  auto-failing the item (see
-  [references/validating-the-harness.md](references/validating-the-harness.md)).
+  findings; low-confidence matches go to `review[]` instead of auto-failing
+  (atomic-answer handling:
+  [references/validating-the-harness.md](references/validating-the-harness.md#atomic-answers-cause-scanner-false-positives)).
 - `scanText(expected, text, options?, location?, surface?)` /
-  `scanFields(expected, fields, options?)` — the underlying scanners. `scanText`
-  takes a `location` label and a `surface` (`"field"` default vs `"freetext"`,
-  which enables the atomic-answer downgrade above).
+  `scanFields(expected, fields, options?)` — the underlying scanners. Pass
+  `surface: "freetext"` to `scanText` to enable the atomic-answer downgrade.
 - `summarizeBlindBaseline(results, { suspiciousPassRate })` — aggregates a
   blind-baseline run and flags a suspiciously high pass rate.
 

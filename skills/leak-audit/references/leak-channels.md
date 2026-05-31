@@ -15,9 +15,9 @@ The target value itself is present.
 - Example: the returned ticket object includes `priority: "High"`, or the
   description contains the line `Priority: High`.
 - Detection: search every surface for the expected value, verbatim and
-  normalized (case/whitespace/punctuation insensitive). For short, atomic
-  answers (labels, sizes like `S`/`M`/`L`), match on whole tokens to avoid
-  false positives (`M` must not match inside `Medium`).
+  normalized (case/whitespace/punctuation insensitive). Short, atomic answers
+  (labels, sizes like `S`/`M`/`L`) need special care to avoid false positives —
+  see [validating-the-harness.md](validating-the-harness.md#atomic-answers-cause-scanner-false-positives).
 
 ## 2. Correlated / derived
 
